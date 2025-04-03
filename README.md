@@ -20,7 +20,7 @@
 ## 🚀 Install
 
 ```bash
-npm install respond
+npm install @dropsite-ai/respond
 ```
 
 ---
@@ -35,7 +35,7 @@ In your `tsconfig.json`:
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "respond"
+    "jsxImportSource": "@dropsite-ai/respond"
   }
 }
 ```
@@ -77,8 +77,7 @@ const html = (
 If you're using Alpine.js on the frontend, use the `clientAlpineRender` helper to inject JSX-rendered HTML and activate Alpine:
 
 ```tsx
-/** @jsxImportSource respond */
-import { clientAlpineRender } from 'respond';
+import { clientAlpineRender } from '@dropsite-ai/respond';
 
 const html = (
   <div x-data="{ count: 0 }">
