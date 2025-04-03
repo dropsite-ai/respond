@@ -1,0 +1,37 @@
+{
+  "name": "respond",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "release": "npm run build && npm publish --access public",
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "exports": {
+    "./jsx-runtime": "./dist/jsx-runtime.js",
+    "./jsx-dev-runtime": "./dist/jsx-dev-runtime.js",
+    ".": "./dist/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "jsx-runtime": [
+        "dist/jsx-runtime.d.ts"
+      ],
+      "jsx-dev-runtime": [
+        "dist/jsx-dev-runtime.d.ts"
+      ]
+    }
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/alpinejs": "^3.13.11",
+    "@types/node": "^22.14.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.1.1"
+  }
+}
