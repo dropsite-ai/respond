@@ -1,3 +1,11 @@
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      [tag: string]: any;
+    }
+  }
+}
+
 export function jsx(
   tag: any,
   props: Record<string, any>,
