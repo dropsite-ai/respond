@@ -1,6 +1,6 @@
 {
   "name": "@dropsite/respond",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,7 +17,9 @@
     "./jsx-dev-runtime": "./dist/jsx-dev-runtime.js",
     ".": "./dist/index.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "typesVersions": {
     "*": {
       "jsx-runtime": [
