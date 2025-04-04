@@ -17,6 +17,7 @@
     "./jsx-dev-runtime": "./dist/jsx-dev-runtime.js",
     ".": "./dist/index.js"
   },
+  "files": ["dist"],
   "typesVersions": {
     "*": {
       "jsx-runtime": [
