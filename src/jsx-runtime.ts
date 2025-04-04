@@ -3,6 +3,8 @@ declare global {
     interface IntrinsicElements {
       [tag: string]: any;
     }
+
+    type Element = string;
   }
 }
 
