@@ -88,11 +88,37 @@ const html = (
 );
 ```
 
-These convert automatically to valid Alpine attributes:
-- `xData` → `x-data`
-- `xClass` → `:class`
-- `xClick` → `@click`
-- `xText` → `x-text`
+These convert automatically to valid Alpine attributes.
+
+---
+
+### ✅ Supported `x*` Props
+
+| JSX Prop     | Output Attribute   |
+|--------------|--------------------|
+| `xData`      | `x-data`           |
+| `xInit`      | `x-init`           |
+| `xModel`     | `x-model`          |
+| `xShow`      | `x-show`           |
+| `xText`      | `x-text`           |
+| `xHtml`      | `x-html`           |
+| `xIf`        | `x-if`             |
+| `xFor`       | `x-for`            |
+| `xKey`       | `x-key`            |
+| `xClass`     | `:class`           |
+| `xStyle`     | `:style`           |
+| `xValue`     | `:value`           |
+| `xChecked`   | `:checked`         |
+| `xDisabled`  | `:disabled`        |
+| `xClick`     | `@click`           |
+| `xSubmit`    | `@submit`          |
+| `xInput`     | `@input`           |
+| `xChange`    | `@change`          |
+| `xKeydown`   | `@keydown`         |
+| `xMouseenter`| `@mouseenter`      |
+| ...          | `@<event>` (default) |
+
+> ℹ️ Any `x*` prop not explicitly listed will default to `@<event>` — e.g. `xBlur → @blur`.
 
 ---
 
