@@ -1,6 +1,6 @@
 import type { Alpine } from 'alpinejs';
 
-export function clientAlpineRender(
+export function xRender(
   target: HTMLElement,
   html: string,
   AlpineInstance?: Alpine

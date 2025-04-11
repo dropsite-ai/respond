@@ -1,41 +1,89 @@
 declare global {
   namespace JSX {
-    interface IntrinsicElements {
-      [tag: string]: any;
-    }
-
+    // We’re using string as our final Element type.
     type Element = string;
+    interface IntrinsicElements {
+      [elemName: string]: any;
+    }
   }
 }
 
+const voidTags = new Set([
+  'area', 'base', 'br', 'col', 'embed', 'hr', 'img',
+  'input', 'link', 'meta', 'source', 'track', 'wbr'
+]);
+
+/**
+ * Converts JSX prop names into the desired HTML attributes.
+ * - Converts className → class.
+ * - For props starting with "x", it converts, for example:
+ *     xData   → x-data
+ *     xClass  → :class   (bindings)
+ *     xClick  → @click   (events)
+ */
+function convertAttr(key: string): string {
+  if (key === 'className') return 'class';
+  if (!key.startsWith('x')) return key;
+
+  // Remove the leading "x" and lowercase the first letter.
+  const raw = key.slice(1);
+  const lowerFirst = raw.charAt(0).toLowerCase() + raw.slice(1);
+  // Convert any remaining uppercase letters to -lowercase.
+  const kebab = lowerFirst.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+
+  // For data, init, model, show, text, and html, keep the x- prefix.
+  if (['data', 'init', 'model', 'show', 'text', 'html'].includes(kebab))
+    return `x-${kebab}`;
+  // For class, style, value, checked, and disabled, use a colon.
+  if (['class', 'style', 'value', 'checked', 'disabled'].includes(kebab))
+    return `:${kebab}`;
+  // Otherwise, assume it’s an event, and use an @ symbol.
+  return `@${kebab}`;
+}
+
+/**
+ * The core JSX function.
+ */
 export function jsx(
   tag: any,
-  props: Record<string, any>,
-  key?: any
+  props: Record<string, any> = {},
+  _key?: any
 ): string {
-  const children = props?.children
-    ? Array.isArray(props.children)
-      ? props.children.join('')
-      : props.children
-    : '';
-
-  // Special handling for Fragment
-  if (tag === Fragment) {
-    return children;
+  // Special handling for fragments.
+  // If the tag equals our Fragment export or is a function whose name is "Fragment",
+  // then simply return its children.
+  if (tag === Fragment || (typeof tag === 'function' && tag.name === 'Fragment')) {
+    const children = props.children;
+    return Array.isArray(children) ? children.join('') : (children ?? '');
   }
 
-  const attrs = Object.entries(props || {})
-    .filter(([k]) => k !== 'children')
-    .map(([k, v]) => ` ${k}="${String(v).replace(/"/g, '&quot;')}"`)
+  const children = props.children;
+  const inner = Array.isArray(children) ? children.join('') : (children ?? '');
+  const rawHtml = props.dangerouslySetInnerHTML?.__html;
+
+  const attrs = Object.entries(props)
+    .filter(([k]) => k !== 'children' && k !== 'dangerouslySetInnerHTML')
+    .map(([k, v]) => {
+      const attr = convertAttr(k);
+      if (v === true) return ` ${attr}`;
+      if (v === false || v == null) return '';
+      return ` ${attr}="${String(v).replace(/"/g, '&quot;')}"`;
+    })
     .join('');
 
-  return `<${tag}${attrs}>${children}</${tag}>`;
+  // For void elements, no closing tag.
+  if (voidTags.has(tag)) return `<${tag}${attrs}>`;
+  return `<${tag}${attrs}>${rawHtml ?? inner}</${tag}>`;
 }
 
 export const jsxs = jsx;
 
-// Fragment must be declared before jsx to avoid hoisting weirdness
-export const Fragment = (props: { children?: any }) =>
-  Array.isArray(props.children)
+/**
+ * Fragment support. When the JSX transform encounters <>
+ * it will call jsx(Fragment, { children: ... }).
+ */
+export function Fragment(props: { children?: any }): string {
+  return Array.isArray(props.children)
     ? props.children.join('')
     : props.children ?? '';
+}

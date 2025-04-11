@@ -12,7 +12,10 @@
 - ✅ Works on server or client
 - ✅ Fragments (`<>...</>`) supported
 - ✅ Outputs real HTML, not virtual DOM
-- ✅ Alpine.js-friendly via `clientAlpineRender`
+- ✅ Alpine.js-friendly via `x*` prop naming convention
+- ✅ Self-closing void tag support
+- ✅ `className` → `class` auto-conversion
+- ✅ `dangerouslySetInnerHTML` for raw HTML injection
 - ✅ Zero runtime dependencies
 
 ---
@@ -72,29 +75,48 @@ const html = (
 
 ---
 
-## ⚡ Alpine.js Integration (optional)
+## ⚡ Alpine.js Support
 
-If you're using Alpine.js on the frontend, use the `clientAlpineRender` helper to inject JSX-rendered HTML and activate Alpine:
+You can use Alpine.js by prefixing your props with `x`:
 
 ```tsx
-import { clientAlpineRender } from '@dropsite/respond';
-
 const html = (
-  <div x-data="{ count: 0 }">
-    <button x-on:click="count++">+</button>
-    <span x-text="count"></span>
+  <div xData="{ count: 0 }" xClick="count++" xClass="count > 0 ? 'active' : 'inactive'">
+    <button>+</button>
+    <span xText="count"></span>
   </div>
 );
-
-const el = document.getElementById('app')!;
-clientAlpineRender(el, html);
 ```
 
-By default, `clientAlpineRender` will:
-- Set `innerHTML` on the element
-- Call `Alpine.initTree()` using the global `window.Alpine`
+These convert automatically to valid Alpine attributes:
+- `xData` → `x-data`
+- `xClass` → `:class`
+- `xClick` → `@click`
+- `xText` → `x-text`
 
-> 💡 You must load Alpine yourself (`@types/alpinejs` is included for type safety only).
+---
+
+## 🧠 Raw HTML Support
+
+Use `dangerouslySetInnerHTML` to inject raw HTML:
+
+```tsx
+const html = <div dangerouslySetInnerHTML={{ __html: '<b>raw</b>' }} />;
+// => <div><b>raw</b></div>
+```
+
+---
+
+## 🛠 Utility: `xRender`
+
+```tsx
+import { xRender } from '@dropsite/respond';
+
+xRender(document.getElementById('app')!, html);
+```
+
+- Injects the `html` into the element
+- Calls `Alpine.initTree()` if `window.Alpine` is available
 
 ---
 
@@ -105,19 +127,11 @@ By default, `clientAlpineRender` will:
 - `jsx(tag, props)` – JSX handler for elements with 1 child
 - `jsxs(tag, props)` – JSX handler for multiple children
 - `jsxDEV(tag, props)` – dev version (same as `jsx`)
-- `Fragment` – inlines children with no wrapping tag
+- `Fragment` – inline fragment wrapper (`<>...</>`)
 
 ### Utility
 
-- `clientAlpineRender(el, html)` – injects and activates Alpine on a given DOM node
-
----
-
-## 🛡 Gotchas
-
-- Use `class`, not `className`
-- Dynamic content is **not sanitized** — escape it if needed
-- You’re responsible for managing interactivity (Alpine, events, etc.)
+- `xRender(el, html, AlpineInstance?)` – render + hydrate Alpine markup
 
 ---
 
@@ -126,10 +140,11 @@ By default, `clientAlpineRender` will:
 Perfect for:
 
 - Static HTML templates
-- SSR output
+- Server-rendered views
 - Markdown + JSX rendering
 - Emails and documentation
-- Lightweight SPA views with Alpine.js
+- Lightweight Alpine.js-powered SPAs
+- Edge-rendered HTML (e.g., Cloudflare Workers)
 
 ---
 
