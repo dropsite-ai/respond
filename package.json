@@ -1,6 +1,6 @@
 {
   "name": "@dropsite/respond",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
