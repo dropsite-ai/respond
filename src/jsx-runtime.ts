@@ -31,27 +31,25 @@ function convertAttr(key: string): string {
   // Convert any remaining uppercase letters to -lowercase.
   const kebab = lowerFirst.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
 
-  // For data, init, model, show, text, and html, keep the x- prefix.
-  if (['data', 'init', 'model', 'show', 'text', 'html'].includes(kebab))
+  if ([
+    'data', 'init', 'model', 'show', 'text', 'html',
+    'if', 'for', 'key'
+  ].includes(kebab)) {
     return `x-${kebab}`;
-  // For class, style, value, checked, and disabled, use a colon.
-  if (['class', 'style', 'value', 'checked', 'disabled'].includes(kebab))
+  }
+
+  if (['class', 'style', 'value', 'checked', 'disabled'].includes(kebab)) {
     return `:${kebab}`;
-  // Otherwise, assume it’s an event, and use an @ symbol.
+  }
+
   return `@${kebab}`;
 }
 
-/**
- * The core JSX function.
- */
 export function jsx(
   tag: any,
   props: Record<string, any> = {},
   _key?: any
 ): string {
-  // Special handling for fragments.
-  // If the tag equals our Fragment export or is a function whose name is "Fragment",
-  // then simply return its children.
   if (tag === Fragment || (typeof tag === 'function' && tag.name === 'Fragment')) {
     const children = props.children;
     return Array.isArray(children) ? children.join('') : (children ?? '');
@@ -71,17 +69,12 @@ export function jsx(
     })
     .join('');
 
-  // For void elements, no closing tag.
   if (voidTags.has(tag)) return `<${tag}${attrs}>`;
   return `<${tag}${attrs}>${rawHtml ?? inner}</${tag}>`;
 }
 
 export const jsxs = jsx;
 
-/**
- * Fragment support. When the JSX transform encounters <>
- * it will call jsx(Fragment, { children: ... }).
- */
 export function Fragment(props: { children?: any }): string {
   return Array.isArray(props.children)
     ? props.children.join('')

@@ -47,13 +47,27 @@ describe('Custom JSX Runtime', () => {
         xClick="count++"
         xInit="console.log('init')"
       >
-        <span xText="count"></span>
+        <template xFor="(msg, i) in messages">
+          <div xKey="i">
+            <template xIf="msg.role === 'user'">
+              <pre xText="msg.content" />
+            </template>
+            <template xIf="msg.role === 'assistant'">
+              <div xHtml="msg.html" />
+            </template>
+          </div>
+        </template>
       </div>
     );
 
     expect(html).toBe(
       '<div x-data="{ count: 0 }" :class="count > 5 ? \'green\' : \'red\'" @click="count++" x-init="console.log(\'init\')">' +
-        '<span x-text="count"></span>' +
+        '<template x-for="(msg, i) in messages">' +
+          '<div x-key="i">' +
+            '<template x-if="msg.role === \'user\'"><pre x-text="msg.content"></pre></template>' +
+            '<template x-if="msg.role === \'assistant\'"><div x-html="msg.html"></div></template>' +
+          '</div>' +
+        '</template>' +
       '</div>'
     );
   });
