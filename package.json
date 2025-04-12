@@ -1,40 +1,40 @@
 {
   "name": "@dropsite/respond",
-  "version": "1.8.0",
-  "description": "",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "version": "2.0.0",
+  "description": "Tagged HTML template for server-rendered UI and Alpine.js markup.",
+  "main": "./dist/html.js",
+  "types": "./dist/html.d.ts",
   "scripts": {
     "build": "tsc",
     "release": "npm run build && npm publish --access public",
-    "test": "vitest"
+    "test": "vitest",
+    "update": "ncu -u"
   },
-  "keywords": [],
+  "keywords": [
+    "html",
+    "template",
+    "tagged-template",
+    "alpinejs",
+    "ssr",
+    "escape",
+    "raw-html"
+  ],
   "author": "",
   "license": "MIT",
   "exports": {
-    "./jsx-runtime": "./dist/jsx-runtime.js",
-    "./jsx-dev-runtime": "./dist/jsx-dev-runtime.js",
-    ".": "./dist/index.js"
+    ".": {
+      "import": "./dist/html.js",
+      "types": "./dist/html.d.ts"
+    }
   },
   "files": [
     "dist"
   ],
-  "typesVersions": {
-    "*": {
-      "jsx-runtime": [
-        "dist/jsx-runtime.d.ts"
-      ],
-      "jsx-dev-runtime": [
-        "dist/jsx-dev-runtime.d.ts"
-      ]
-    }
-  },
   "type": "module",
   "devDependencies": {
-    "@types/alpinejs": "^3.13.11",
-    "@types/node": "^22.14.0",
-    "typescript": "^5.8.2",
-    "vitest": "^3.1.1"
+    "@types/node": "22.14.1",
+    "npm-check-updates": "17.1.18",
+    "typescript": "5.8.3",
+    "vitest": "3.1.1"
   }
 }

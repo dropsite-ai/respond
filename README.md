@@ -1,22 +1,20 @@
 # respond
 
-> A tiny, universal JSX-to-HTML string renderer — with optional Alpine.js support.
+> A tiny, type-safe HTML template tag for rendering HTML strings — with built-in escaping, raw injection, and smart whitespace control.
 
-`respond` lets you write HTML in JSX and render it to raw strings — no DOM, no React, no dependencies. You can use it on the server or client, and even pair it with [Alpine.js](https://alpinejs.dev/) for lightweight interactivity.
+`respond` lets you write real HTML in tagged template literals. It escapes interpolated values by default, lets you safely inject raw HTML when needed, and works in any JavaScript or TypeScript environment — no JSX, no dependencies, no runtime overhead.
 
 ---
 
 ## ✨ Features
 
-- ✅ Renders JSX to HTML strings
-- ✅ Works on server or client
-- ✅ Fragments (`<>...</>`) supported
-- ✅ Outputs real HTML, not virtual DOM
-- ✅ Alpine.js-friendly via `x*` prop naming convention
-- ✅ Self-closing void tag support
-- ✅ `className` → `class` auto-conversion
-- ✅ `dangerouslySetInnerHTML` for raw HTML injection
-- ✅ Zero runtime dependencies
+- ✅ Write HTML using template literals with syntax highlighting
+- ✅ Escapes interpolated values automatically (XSS-safe)
+- ✅ Use `raw()` to inject unescaped HTML
+- ✅ Smart whitespace collapsing for readable output
+- ✅ Supports arrays, nulls, and mixed content
+- ✅ Fully runtime-agnostic: works in Node, browsers, and edge runtimes
+- ✅ Zero dependencies, zero magic
 
 ---
 
@@ -30,147 +28,120 @@ npm install @dropsite/respond
 
 ## 📦 Basic Usage
 
-### Enable JSX with a custom factory
+```ts
+import { html } from '@dropsite/respond';
 
-In your `tsconfig.json`:
+const name = 'Winton';
 
-```json
-{
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "@dropsite/respond"
-  }
-}
-```
-
----
-
-### Render HTML in any `.tsx` file
-
-```tsx
-const html = (
-  <div class="alert">
-    Hello <b>world</b>
+const markup = html/*html*/`
+  <div class="user">
+    Hello, ${name}!
   </div>
-);
+`;
 
-console.log(html);
-// => <div class="alert">Hello <b>world</b></div>
+console.log(markup);
+// => <div class="user"> Hello, Winton! </div>
 ```
 
 ---
 
-## 🧩 Fragments
+## 🔒 Automatic Escaping
 
-```tsx
-const html = (
-  <>
+Interpolated values are automatically HTML-escaped to prevent injection:
+
+```ts
+const unsafe = '<script>alert("xss")</script>';
+
+const markup = html/*html*/`<div>${unsafe}</div>`;
+// => <div>&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;</div>
+```
+
+---
+
+## 🧠 Inject Raw HTML with `raw()`
+
+Use the `raw()` helper to explicitly insert unescaped HTML:
+
+```ts
+import { html, raw } from '@dropsite/respond';
+
+const markup = html/*html*/`
+  <div>
+    ${raw('<span class="highlight">raw html</span>')}
+  </div>
+`;
+
+// => <div><span class="highlight">raw html</span></div>
+```
+
+---
+
+## 🧹 Whitespace Collapsing
+
+Multiline HTML templates are cleaned up automatically:
+
+```ts
+const markup = html/*html*/`
+  <section>
     <h1>Title</h1>
+
     <p>Description</p>
-  </>
-);
+  </section>
+`;
 
-// => <h1>Title</h1><p>Description</p>
+// => <section> <h1>Title</h1> <p>Description</p> </section>
 ```
+
+- Single-line literals are left untouched
+- Whitespace inside interpolated values is preserved unless you modify it
 
 ---
 
-## ⚡ Alpine.js Support
+## 🧩 Interpolating Arrays and Mixed Content
 
-You can use Alpine.js by prefixing your props with `x`:
+You can interpolate arrays of strings, raw HTML, or values:
 
-```tsx
-const html = (
-  <div xData="{ count: 0 }" xClick="count++" xClass="count > 0 ? 'active' : 'inactive'">
-    <button>+</button>
-    <span xText="count"></span>
-  </div>
-);
+```ts
+const items = [
+  raw('<li>One</li>'),
+  raw('<li>Two</li>')
+];
+
+const markup = html/*html*/`
+  <ul>${items}</ul>
+`;
+
+// => <ul><li>One</li><li>Two</li></ul>
 ```
 
-These convert automatically to valid Alpine attributes.
-
----
-
-### ✅ Supported `x*` Props
-
-| JSX Prop     | Output Attribute   |
-|--------------|--------------------|
-| `xData`      | `x-data`           |
-| `xInit`      | `x-init`           |
-| `xModel`     | `x-model`          |
-| `xShow`      | `x-show`           |
-| `xText`      | `x-text`           |
-| `xHtml`      | `x-html`           |
-| `xIf`        | `x-if`             |
-| `xFor`       | `x-for`            |
-| `xKey`       | `x-key`            |
-| `xClass`     | `:class`           |
-| `xStyle`     | `:style`           |
-| `xValue`     | `:value`           |
-| `xChecked`   | `:checked`         |
-| `xDisabled`  | `:disabled`        |
-| `xClick`     | `@click`           |
-| `xSubmit`    | `@submit`          |
-| `xInput`     | `@input`           |
-| `xChange`    | `@change`          |
-| `xKeydown`   | `@keydown`         |
-| `xMouseenter`| `@mouseenter`      |
-| ...          | `@<event>` (default) |
-
-> ℹ️ Any `x*` prop not explicitly listed will default to `@<event>` — e.g. `xBlur → @blur`.
-
----
-
-## 🧠 Raw HTML Support
-
-Use `dangerouslySetInnerHTML` to inject raw HTML:
-
-```tsx
-const html = <div dangerouslySetInnerHTML={{ __html: '<b>raw</b>' }} />;
-// => <div><b>raw</b></div>
-```
-
----
-
-## 🛠 Utility: `xRender`
-
-```tsx
-import { xRender } from '@dropsite/respond';
-
-xRender(document.getElementById('app')!, html);
-```
-
-- Injects the `html` into the element
-- Calls `Alpine.initTree()` if `window.Alpine` is available
+Falsy values like `null` or `undefined` are safely ignored.
 
 ---
 
 ## 📚 API
 
-### JSX Runtime Exports
+### `html(strings, ...values): string`
 
-- `jsx(tag, props)` – JSX handler for elements with 1 child
-- `jsxs(tag, props)` – JSX handler for multiple children
-- `jsxDEV(tag, props)` – dev version (same as `jsx`)
-- `Fragment` – inline fragment wrapper (`<>...</>`)
+A tagged template that returns an HTML string.
 
-### Utility
+- Escapes all interpolated values by default
+- Accepts arrays, nested values, and raw HTML
 
-- `xRender(el, html, AlpineInstance?)` – render + hydrate Alpine markup
+### `raw(value): { __html: string }`
+
+Marks a value as raw HTML to skip escaping.
 
 ---
 
-## 🪶 When to Use This
+## 🪶 Use Cases
 
-Perfect for:
+Great for:
 
-- Static HTML templates
-- Server-rendered views
-- Markdown + JSX rendering
-- Emails and documentation
-- Lightweight Alpine.js-powered SPAs
-- Edge-rendered HTML (e.g., Cloudflare Workers)
+- Static HTML rendering
+- Server-side rendering in edge or server environments
+- Safe template construction in Markdown processors
+- HTML emails or CMS content previews
+- Framework-less UI and documentation generation
 
 ---
 
