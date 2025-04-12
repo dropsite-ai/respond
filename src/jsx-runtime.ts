@@ -25,23 +25,33 @@ function convertAttr(key: string): string {
   if (key === 'className') return 'class';
   if (!key.startsWith('x')) return key;
 
-  // Remove the leading "x" and lowercase the first letter.
   const raw = key.slice(1);
   const lowerFirst = raw.charAt(0).toLowerCase() + raw.slice(1);
-  // Convert any remaining uppercase letters to -lowercase.
   const kebab = lowerFirst.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
 
-  if ([
-    'data', 'init', 'model', 'show', 'text', 'html',
-    'if', 'for', 'key'
-  ].includes(kebab)) {
+  // Direct x-attributes
+  const directXAttrs = new Set([
+    'data', 'init', 'show', 'text', 'html', 'if', 'for', 'key',
+    'id', 'cloak', 'ref', 'effect', 'ignore'
+  ]);
+  if (directXAttrs.has(kebab)) {
     return `x-${kebab}`;
   }
 
-  if (['class', 'style', 'value', 'checked', 'disabled'].includes(kebab)) {
+  // Bindings
+  const bindingAttrs = new Set([
+    'model', 'bind', 'class', 'style', 'value', 'checked', 'disabled'
+  ]);
+  if (bindingAttrs.has(kebab)) {
     return `:${kebab}`;
   }
 
+  // Special-case for nested `x-bind:foo` as xBindFoo
+  if (kebab.startsWith('bind:')) {
+    return `x-${kebab}`;
+  }
+
+  // Event handlers
   return `@${kebab}`;
 }
 
